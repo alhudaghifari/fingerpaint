@@ -15,8 +15,10 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 public class MainActivity extends Activity {
@@ -24,15 +26,15 @@ public class MainActivity extends Activity {
     DrawingView dv ;
     private Paint mPaint;
     MyDrawView myDrawView;
-    RelativeLayout parent;
+    RelativeLayout rellayTandaTangan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        parent = (RelativeLayout) findViewById(R.id.signImageParent);
+        rellayTandaTangan = (RelativeLayout) findViewById(R.id.signImageParent);
         myDrawView = new MyDrawView(this);
-        parent.addView(myDrawView);
+        rellayTandaTangan.addView(myDrawView);
 //        dv = new DrawingView(this);
 //        setContentView(dv);
 //        mPaint = new Paint();
@@ -46,21 +48,28 @@ public class MainActivity extends Activity {
     }
 
     private void saveImage() {
-        parent.setDrawingCacheEnabled(true);
-        Bitmap b = parent.getDrawingCache();
+        rellayTandaTangan.setDrawingCacheEnabled(true);
+        Bitmap b = rellayTandaTangan.getDrawingCache();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        b.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
 
         Random rand = new Random();
 
-        int name = rand.nextInt(50) + 1;
+        int name = rand.nextInt(500) + 1;
 
         FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(name + "");
+            fos = new FileOutputStream(String.format("/sdcard/" + "Fingerpaint" + name
+                    + ".jpg", System.currentTimeMillis()));
+            fos.write(byteArray);
+            fos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
         }
-
-        b.compress(Bitmap.CompressFormat.PNG, 95, fos);
     }
 
     public class DrawingView extends View {
